@@ -1,0 +1,42 @@
+Node order: ['ShapeScore']
+
+
+>>>>>
+Retrieving (next) targets ...
+Evaluating target query for ShapeScore:
+PREFIX a: <http://www.example.com/>
+SELECT ?x WHERE {?x a a:Student} ORDER BY ?x
+elapsed: 12.46826171875 ms
+
+Number of targets retrieved: 3
+
+>>>>> Starting validation of shape: ShapeScore
+
+Evaluating query ShapeScore_d1_pos:
+PREFIX a: <http://www.example.com/>
+SELECT DISTINCT ?x WHERE {
+?x a a:Student. {
+SELECT DISTINCT ?x WHERE {
+?x a:hasScore ?p_0.
+?x a:hasScore ?p_1.
+FILTER(
+?p_0 != ?p_1)
+}
+}} ORDER BY ?x
+elapsed: 4.6337890625 ms
+
+Number of solution mappings: 3
+
+Grounded rules. 
+
+
+Number of rules: 6
+Starting saturation ...
+saturation ...
+elapsed: 0.0087890625 ms
+Remaining targets: 0
+
+Maximal number or rules in memory: 6
+Total number of rules: 6
+Valid targets: 3
+Invalid targets: 0

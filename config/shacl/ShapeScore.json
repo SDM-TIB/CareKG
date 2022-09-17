@@ -1,0 +1,17 @@
+{
+	"name": "ShapeScore",
+	"targetDef": {
+		"query":"SELECT ?x WHERE {?x a a:Student}",
+		"class": "a:Student"
+	},
+	"prefix":{
+		"a":"<http://www.example.com/>"
+	},
+	"constraintDef":{
+		"conjunctions":[
+			[
+				{ "path": "a:hasScore", "min": 2}
+			]
+		]
+	}
+}
