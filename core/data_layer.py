@@ -7,6 +7,7 @@ import operator
 # TODO
 # 1. casual structure to recognize the adapting set
 # 2. support NULL value of other variables
+# 3. context (strata) is not support yet
 
 # package:
 # pandas 1.3.0
@@ -213,6 +214,7 @@ class ConceptMapping:
         when name is a constant attribute, uris is data type
         '''
         assert len(names) == len(uris)
+
         assert len(names) == len(set(names))
 
         self.classes, self.properties, self.attributes = set(), set(), set()

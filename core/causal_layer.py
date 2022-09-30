@@ -51,35 +51,42 @@ def regression_analysis(df, X, Y, ref=None):
     :param ref: {col: value, col: value, ..., } control for discrete variable
     :return:
     '''
-    def cause_effect_by_excute(excute_comment, df, logist_flag=True):
+    def cause_effect_by_excute(excute_comment, df, logist_flag=False):
         result = smf.logit(excute_comment, data=df).fit() if logist_flag else smf.ols(excute_comment, data=df).fit()
 
         # ... Define and fit model
-        odds_ratios = pd.DataFrame(
-            {
-                "OR": result.params,
-                "Lower CI": result.conf_int()[0],
-                "Upper CI": result.conf_int()[1],
-            }
-        )
-        odds_ratios = np.exp(odds_ratios)
-        odds_ratios["std err"] = result.bse
-        odds_ratios["pvalue"] = result.pvalues
-        # display(odds_ratios.round(4))
-        return odds_ratios
+        if logist_flag:
+            odds_ratios = pd.DataFrame(
+                {
+                    "OR": result.params,
+                    "Lower CI": result.conf_int()[0],
+                    "Upper CI": result.conf_int()[1],
+                }
+            )
+            odds_ratios = np.exp(odds_ratios)
+            odds_ratios["std err"] = result.bse
+            odds_ratios["pvalue"] = result.pvalues
+            return odds_ratios
+        else:
+            odds_ratios = pd.DataFrame(
+                {
+                    "Coef": result.params,
+                    "Lower CI": result.conf_int()[0],
+                    "Upper CI": result.conf_int()[1],
+                }
+            )
+            odds_ratios["std err"] = result.bse
+            odds_ratios["pvalue"] = result.pvalues
+            return odds_ratios
+
     X = [X] if type(X) is not list else X
     excute_comment = Y + " ~ "
-    # + " + ".join(X) if len(X) > 1 else Y + " ~ "
-
     for i, x in enumerate(X):
         if ref and x in ref.keys():
             excute_comment += (" + "if i else "")+"C(" + x + ", Treatment(reference='" + str(ref[x]) + "'))"
         else:
             excute_comment += (" + "if i else "")+x
     print("Regression Formula: ", excute_comment)
-    # print(df.columns)
-    # input()
-    # max([len(df[col].unique()) for col in df.columns])
 
     return cause_effect_by_excute(excute_comment, df, len(df[Y].unique()) == 2)
 

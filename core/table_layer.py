@@ -8,23 +8,72 @@ import numpy as np
 from causal_layer import avg_cause_effect, regression_analysis, relational_cause_effect_xlearner, relational_cause_effect_tlearner, relational_cause_effect_slearner
 
 
+def configs_check(configs: dict):
+    concepts = configs['concepts']
+    causal_graph = configs['causal_graph']
+    graph_pattern = configs['graph_pattern']
+    perspective = configs['perspective']
+    attr_design = configs['attr_design']
+    agg_strategy = configs['agg_strategy']
+
+    classes = set()
+    properties = set()
+    attributes = set()
+    for index_, quadruple in concepts.items():
+        assert type(quadruple[0]) is str and type(quadruple[1]) is str and quadruple[2] in [0, 1, 2]
+        if quadruple[2] == 0:
+            classes.add(index_)
+        elif quadruple[2] == 2:
+            assert type(quadruple[3]) is type
+            attributes.add(index_)
+        else:
+            assert type(quadruple[3]) is str
+            properties.add(index_)
+    if causal_graph:
+        for c, e in causal_graph:
+            assert c in attributes and e in attributes
+
+    for sub, predicate, obj in graph_pattern:
+        assert sub in classes
+        assert predicate in properties
+        assert obj in classes or obj in attributes
+
+    for concept in perspective:
+        assert concept in classes
+
+    if attr_design:
+        for k in attr_design.keys():
+            assert k not in properties
+
+    for k in agg_strategy.keys():
+        assert k not in properties
+
+
 class TableLayer:
 
     def __init__(self, configs):
-        self.configs = configs
-        
-        assert set(range(len(configs['concepts'].keys()))) == set(configs['concepts'].keys())
-        assert len(configs['concepts']) == len(configs['concepts_type']) == len(configs['concepts_brief']) == len(configs['concepts_prefix'])
-        self.sparql_engine = QueryEngine(endpoint_url=configs['endpoint_url'])
-        
-        concepts = [0]*len(configs['concepts'].keys())
-        for k, val in configs['concepts'].items():
-            concepts[k] = val
-        concepts = ["<"+prefix+concept+">" if type(prefix) is str else concept if prefix is None else prefix for prefix, concept in zip([configs['prefixes'][e] if type(e) is str else e for e in configs['concepts_prefix']], concepts)]
-        
-        # print(len(concepts), len(configs['concepts_brief']))
+        self.index_map = {}
+        self.configs = self.reindex_concepts(configs)
+        configs_check(self.configs)
 
-        self.map = ConceptMapping(configs['concepts_brief'], concepts, configs['concepts_type'])
+        self.sparql_engine = QueryEngine(endpoint_url=configs['endpoint_url'])
+
+        concepts_size = len(configs['concepts'].keys())
+        concepts = [0] * concepts_size
+        concepts_brief = [0] * concepts_size
+        concepts_type = [0] * concepts_size
+        concepts_prefix = [0] * concepts_size
+
+        for i in range(concepts_size):
+            concept, brief, concept_type, prefix = configs['concepts'][i]
+            concepts[i] = "<" + configs['prefixes'][prefix] + concept + ">" if type(prefix) is str else concept if (not prefix) else prefix
+            concepts_brief[i] = brief
+            concepts_type[i] = concept_type
+            concepts_prefix[i] = prefix
+        
+        # concepts = ["<"+prefix+concept+">" if type(prefix) is str else concept if prefix is None else prefix for prefix, concept in zip([configs['prefixes'][e] if type(e) is str else e for e in configs['concepts_prefix']], concepts)]
+
+        self.map = ConceptMapping(concepts_brief, concepts, concepts_type)
         self.querybuilder = QueryBuilder(query_engine=self.sparql_engine,
                                          concept_mapping=self.map,
                                          graph_structure=configs['graph_pattern'],
@@ -40,6 +89,37 @@ class TableLayer:
                                           perspective=configs['perspective'],
                                           attr_design=configs["attr_design"],
                                           agg_strategy=configs["agg_strategy"])
+
+    def reindex_concepts(self, configs: dict):
+        '''
+        :param configs:
+        :return:
+        # [(concept, brief, type, prefix/datatype)], type: 0:class, 1:property, 2:attribute
+
+        '''
+        concepts = configs['concepts']
+        causal_graph = configs['causal_graph']
+        graph_pattern = configs['graph_pattern']
+        perspective = configs['perspective']
+        attr_design = configs['attr_design']
+        agg_strategy = configs['agg_strategy']
+        constraints = configs['constraints']
+
+        self.index_map = {i: _i for _i, i in enumerate(concepts.keys())}
+        configs['concepts'] = {self.index_map[i]: c for i, c in concepts.items()}
+        if causal_graph:
+            configs['causal_graph'] = [(self.index_map[c], self.index_map[e]) for c, e in causal_graph]
+        configs['graph_pattern'] = [[self.index_map[i] for i in triple] for triple in graph_pattern]
+        configs['perspective'] = [self.index_map[i] for i in perspective]
+        if attr_design:
+            configs['attr_design'] = {self.index_map[i]: design for i, design in attr_design.items()}
+        configs['agg_strategy'] = {self.index_map[i]: agg for i, agg in agg_strategy.items()}
+        if constraints:
+            configs['constraints'] = {self.index_map[i]: constraint for i, constraint in constraints.items()}
+        return configs
+
+    def convert_index(self, *args):
+        return (self.index_map[arg] for arg in args)
 
     @property
     def invalid_entities(self):
@@ -128,6 +208,8 @@ class TableLayer:
         :param exclude_invalid: whether exclude invalid entities?
         :return:
         '''
+        treatment, outcome = self.convert_index(treatment, outcome)
+
         unit_df = self.unit_table(has_interference, id4peers, exclude_invalid)
         treatment = self.map.id2name(treatment) if type(treatment) is int else treatment
         outcome = self.map.id2name(outcome) if type(outcome) is int else outcome
@@ -200,11 +282,13 @@ def toy_toy_example():
     configs = {
     "endpoint_url": "http://localhost:7200/repositories/university",
     "prefixes": {"ex": "http://www.example.com/", "xls": "http://www.w3.org/2001/XMLSchema#"},
-    "concepts": {0: "Professor", 1: "University", 2: "Student", 3: "hasRank", 4: "workIn", 5: "supervise", 6: "hasScore",
-                 7: "rank", 8: "score", 9: "hasMutation", 10: "mutation"},
-    "concepts_brief": ["prof", "univ", "stu", "hasR", "workIn",
-                       "supervise", "hasS", "rank", "score", "hasM", "mutation"],   # variable names ?prof, ?univ
-    "concepts_prefix": ["ex", "ex", "ex", "ex", "ex", "ex", "ex", int, float, "ex", str],    # according to the correspond index; type means attribute
+    "concepts": {0: ("Professor", "prof", "ex"), 1: ("University", "univ", "ex"), 2: ("Student", "stu", "ex"),
+                 3: ("hasRank", 'hasR', 'ex'), 4: ("workIn", 'workIn', 'ex'), 5: ("supervise", 'supervise', 'ex'),
+                 6: ("hasScore", 'hasS', 'ex'), 7: ("rank", 'rank', int), 8: ("score", 'score', float),
+                 9: ("hasMutation", 'hasM', 'ex'), 10: ("mutation", 'mutation', str)},
+    # "concepts_brief": ["prof", "univ", "stu", "hasR", "workIn",
+    #                    "supervise", "hasS", "rank", "score", "hasM", "mutation"],   # variable names ?prof, ?univ
+    # "concepts_prefix": ["ex", "ex", "ex", "ex", "ex", "ex", "ex", int, float, "ex", str],    # according to the correspond index; type means attribute
     "graph_pattern": [[0, 4, 1], [1, 3, 7], [0, 5, 2], [2, 6, 8], [2, 9, 10]],  # can use id or brief concept
     "perspective": [1, 2],
     "attr_design": {8: {'avg': None},
@@ -268,8 +352,6 @@ def try_lung_cancer():
     table_layer = TableLayer(configs=configs)
     unit_df = table_layer.unit_table()
     unit_df.to_csv('tmp.csv')
-
-
 
 
 

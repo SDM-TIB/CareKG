@@ -8,20 +8,23 @@ def writerAge2FirstPublish():
     "prefixes": {"dbo": "http://dbpedia.org/ontology/", "dbp": "http://dbpedia.org/resource/",
                  "ns2": 'http://xmlns.com/foaf/0.1/',
                  "dbpedia2": "http://dbpedia.org/property/", "xls": "http://www.w3.org/2001/XMLSchema#"},
-    "concepts": {0: "University", 1: "Writer", 2: "Book", 3: "arwuW", 4: "hasForStudent", 5: "birthDate", 6: "genre",
-                 7: "gender", 8: "author", 9: "releaseDate", 10: "Rank", 11: "BirthDate", 12: "Genre",
-                 13: "Gender", 14: "ReleaseDate"},
-    "causal_structure": [],
-    "concepts_type": [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
-    "concepts_brief": ["univ", "writer", "book", "hasRank", "universityOfStudent",
-                       "hasBirth", "hasGenre", "hasGender", "authorOf", "releaseWhen", "rank", "birth",
-                       'genre', 'gender', 'bookDate'],   # variable names ?prof, ?univ
-    "concepts_prefix": ["dbo", 'dbo', 'dbo', 'dbo', 'dbo', 'dbo', 'dbo', 'ns2', 'dbo', "dbo", int, int, str, str, int],    # according to the correspond index; type means attribute
+
+    # (concept, concept brief name, concept type, prefix of concept)
+    # concept type: 0: class, 1: property, 2: attribute
+    # prefix: data type if concept is attribute else str
+    "concepts": {0: ("University", 'univ', 0, 'dbo'), 1: ("Writer", 'writer', 0, 'dbo'), 2: ("Book", 'book', 0, 'dbo'),
+                     3: ("arwuW", 'hasRank', 1, 'dbo'), 4: ("hasForStudent", 'isUniversityOf', 1, 'dbo'),
+                     5: ("birthDate", 'hasBirth', 1, 'dbo'), 6: ("genre", 'hasGenre', 1, 'dbo'),
+                     7: ("gender", 'hasGender', 1, 'ns2'), 8: ("author", 'authorOf', 1, 'dbo'),
+                     9: ("releaseDate", 'releaseWhen', 1, 'dbo'), 10: ("Rank", 'rank', 2, int),
+                     11: ("BirthDate", 'birth', 2, int), 12: ("Genre", 'genre', 2, str),
+                     13: ("Gender", 'gender', 2, str), 20: ("ReleaseDate", 'bookDate', 2, int)},
+    "causal_graph": [],
     # "graph_pattern": [[0, 3, 10], [0, 4, 1], [1, 5, 11], [1, 7, 13], [1, 8, 2], [2, 9, 14], [2, 6, 12]],  # can use id or brief concept
-    "graph_pattern": [[1, 5, 11], [1, 8, 2], [2, 9, 14]],        # birth of author impact on publishdate
+    "graph_pattern": [[1, 5, 11], [1, 8, 2], [2, 9, 20]],        # birth of author impact on publishdate
     "perspective": [1],
     "attr_design": None,
-    "agg_strategy": {14: {'min': None},
+    "agg_strategy": {20: {'min': None},
                      11: {'min': None}
                      },
                      # 10: {'comb': {'comb_names': ['ALKorEGFR'], 'comb_vals': [['ALK', 'EGFR']], 'prior': False}},
@@ -33,7 +36,7 @@ def writerAge2FirstPublish():
     # unit_df = table_layer.unit_table()
 
     causal_table, treatment, outcome = table_layer.causal_table(treatment=11,
-                                                                outcome=14,
+                                                                outcome=20,
                                                                 treatment_design=None,
                                                                 # set() for treatment, or > threshold
                                                                 # has_interference=True,
@@ -53,17 +56,18 @@ def rankOfUniv2FirstPublish():
         "prefixes": {"dbo": "http://dbpedia.org/ontology/", "dbp": "http://dbpedia.org/resource/",
                      "ns2": 'http://xmlns.com/foaf/0.1/',
                      "dbpedia2": "http://dbpedia.org/property/", "xls": "http://www.w3.org/2001/XMLSchema#"},
-        "concepts": {0: "University", 1: "Writer", 2: "Book", 3: "arwuW", 4: "hasForStudent", 5: "birthDate",
-                     6: "genre",
-                     7: "gender", 8: "author", 9: "releaseDate", 10: "Rank", 11: "BirthDate", 12: "Genre",
-                     13: "Gender", 14: "ReleaseDate"},
-        "causal_structure": [],
-        "concepts_type": [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
-        "concepts_brief": ["univ", "writer", "book", "hasRank", "universityOfStudent",
-                           "hasBirth", "hasGenre", "hasGender", "authorOf", "releaseWhen", "rank", "birth",
-                           'genre', 'gender', 'bookDate'],  # variable names ?prof, ?univ
-        "concepts_prefix": ["dbo", 'dbo', 'dbo', 'dbo', 'dbo', 'dbo', 'dbo', 'ns2', 'dbo', "dbo", int, int, str, str,
-                            int],  # according to the correspond index; type means attribute
+        # (concept, concept brief name, concept type, prefix of concept)
+        # concept type: 0: class, 1: property, 2: attribute
+        # prefix: data type if concept is attribute else str
+        "concepts": {0: ("University", 'univ', 0, 'dbo'), 1: ("Writer", 'writer', 0, 'dbo'), 2: ("Book", 'book', 0, 'dbo'),
+                     3: ("arwuW", 'hasRank', 1, 'dbo'), 4: ("hasForStudent", 'isUniversityOf', 1, 'dbo'),
+                     5: ("birthDate", 'hasBirth', 1, 'dbo'), 6: ("genre", 'hasGenre', 1, 'dbo'),
+                     7: ("gender", 'hasGender', 1, 'ns2'), 8: ("author", 'authorOf', 1, 'dbo'),
+                     9: ("releaseDate", 'releaseWhen', 1, 'dbo'), 10: ("Rank", 'rank', 2, int),
+                     11: ("BirthDate", 'birth', 2, int), 12: ("Genre", 'genre', 2, str),
+                     13: ("Gender", 'gender', 2, str), 14: ("ReleaseDate", 'bookDate', 2, int)},
+        "causal_graph": [],
+
         # "graph_pattern": [[0, 3, 10], [0, 4, 1], [1, 5, 11], [1, 7, 13], [1, 8, 2], [2, 9, 14], [2, 6, 12]],  # can use id or brief concept
         "graph_pattern": [[0, 3, 10], [0, 4, 1], [1, 8, 2], [2, 9, 14]],  # birth of author impact on publishdate
         "perspective": [1],
@@ -96,8 +100,8 @@ def rankOfUniv2FirstPublish():
 
 
 # TODO Exp1: Birthe Date of Author -> First Publish Year of Author
-# writerAge2FirstPublish()
+writerAge2FirstPublish()
 
 # TODO Exp2: Rank of University of Author -> First Publish Year of Author
-rankOfUniv2FirstPublish()
+# rankOfUniv2FirstPublish()
 

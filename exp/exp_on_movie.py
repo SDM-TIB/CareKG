@@ -10,15 +10,17 @@ def try_movie_example(setting):
     configs = {
         "endpoint_url": "http://localhost:7200/repositories/movie",
         "prefixes": {"ex": "http://www.example.com/", "xls": "http://www.w3.org/2001/XMLSchema#"},
-        "concepts": {0: "Movie", 1: "Person", 2: "Actor", 3: "Director", 4: "Recruit", 5: 'hasScucess',
-                     6: "hasFame", 7: 'hasExp', 8: "actIn", 9: 'direct', 10: "hasActor", 11: 'hasDirector',
-                     12: "hasMovie", 13: 'experience', 14: 'success', 15: 'fame'},
-        "concepts_type": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],     # 0:class, 1:property, 2:attribute
-        "concepts_brief": ["move", 'person', 'actor', 'director', 'recruit', 'hassuc', 'hasfame', 'hasexp',
-                           'actin', 'direct', 'hasactor', 'hasdirector', 'hasmovie', 'exp', 'success', 'fame'],  # variable names ?prof, ?univ
-        "concepts_prefix": ["ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", "ex", int, int, int],
+        "concepts": {22: ("Movie", 'movie', 0, 'ex'), 1: ("Person", 'person', 0, 'ex'), 2: ("Actor", 'actor', 0, 'ex'),
+                     3: ("Director", 'diretor', 0, 'ex'), 4: ("Recruit", 'recruit', 0, 'ex'),
+                     5: ('hasScucess', 'hassuc', 1, 'ex'), 6: ("hasFame", 'hasfame', 1, 'ex'),
+                     7: ('hasExp', 'hasexp', 1, 'ex'), 8: ("actIn", 'actin', 1, 'ex'),
+                     9: ('direct', 'direct', 1, 'ex'), 10: ("hasActor", 'hasactor', 1, 'ex'),
+                     11: ('hasDirector', 'hasdirector', 1, 'ex'), 12:("hasMovie", 'hasmovie', 1, 'ex'),
+                     13: ('experience', 'exp', 2, int), 14: ('success', 'success', 2, int),
+                     15: ('fame', 'fame', 2, int)},
+        'causal_graph': [],
         # according to the correspond index; type means attribute
-        "graph_pattern": [[0, 5, 14], [3, 7, 13], [3, 9, 0]], #, [2, 6, 15], [2, 8, 0],  [4, 10, 2], [4, 11, 3],
+        "graph_pattern": [[22, 5, 14], [3, 7, 13], [3, 9, 22]], #, [2, 6, 15], [2, 8, 0],  [4, 10, 2], [4, 11, 3],
                           # [4, 12, 0]],  # can use id or brief concept
         # don't choose both path, because there will less instance to meet the requirement
         "perspective": [3],
@@ -69,6 +71,6 @@ try_movie_example(1)
 # TODO Constraint: those Director who are not Actor
 # try_movie_example(2)
 
-clarify: PatientShape
-    a sh:NodeShape ;
-    Sh: targetClass: clarify:Patient.
+# clarify: PatientShape
+#     a sh:NodeShape ;
+#     Sh: targetClass: clarify:Patient.
