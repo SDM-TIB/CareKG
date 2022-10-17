@@ -2,7 +2,7 @@
 ![](https://raw.githubusercontent.com/jason-huanghao/PicGoBed/master/imgs/20221017145542.png)
 
 CareKG is a python library support causal queries over KG allowing semantics using metadata of KG. 
-The proposal of CareKG is published in 👉**the Proceedings of 31st ACM CIKM (2022)**👈.
+The proposal of CareKG is published in 👉 **the Proceedings of 31st ACM CIKM (2022)** 👈.
 The **paper** and **video** can be found 👉[here](https://dl.acm.org/doi/10.1145/3511808.3557818).
 The **slides** of CareKG presented in CIKM (2022) can be found 👉[here](https://github.com/SDM-TIB/CareKG/blob/master/docs/CIKM2022_CareKG.pdf).
 
