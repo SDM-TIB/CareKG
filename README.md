@@ -1,4 +1,4 @@
-# Causal Relationship over Knowledge Graphs (CareKG)
+# Causal Relationship over Knowledge Graphs (CareKG) in 31st ACM CIKM (2022)
 ![](https://raw.githubusercontent.com/jason-huanghao/PicGoBed/master/imgs/20221017145542.png)
 
 CareKG is a python library support causal queries over KG with abilities to using metadata from KG. 
