@@ -10,6 +10,7 @@ The python library is going to be ready, but you can use it now using our source
 Providing the endpoint of your KG (e.g. by graphDB), you can play causal queries over your KG! 🎉
 
 If you want to enable causal queries in your knowledge graph, feel free to contact me (Hao Huang) by Hao.Huang@tib.eu. 
+
 If you want to build a KG from data in any other resources (relational database, csv files, json files, ect.), our team [Scientific Data Mangement Group](https://www.tib.eu/en/research-development/research-groups-and-labs/scientific-data-management/staff) have the whole pipeline to create KG from scratch. Please feel free to contact Prof. Dr. Maria-Esther Vidal by Maria.vidal@tib.eu.
 
 
